@@ -92,4 +92,23 @@ cp ../../signet_v1/SAMPLEDATA/omim_genes.txt .
 cd ..
 ```
 
+## Data preparation: Protein-protein interactions
+
+Protein-protein interactions are from the IID database:
+```
+cd PROTEIN
+wget 'http://iid.ophid.utoronto.ca/static/download/human_annotated_PPIs.txt.gz'
+gunzip human_annotated_PPIs.txt.gz
+cd ..
+```
+
+## Data preparation: Gene-regulatory interactions
+
+Gene-regulatory interactions are from TRRUST. The TRRUST download does not have headers, so we add them.
+```
+wget 'https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv'
+echo -e 'TranscriptionFactor\tTarget\tSign\tPMIDs' > trrust.human.txt
+cat trrust_rawdata.human.tsv >> trrust.human.txt
+```
+
 
