@@ -15,4 +15,12 @@ mkdir DATA
 mkdir RESULTS
 ```
 
+Then using EKG GWAS data from TopMed as an example, we go do the `DATA` directory and create sub-directories:
+```
+cd DATA
+mkdir ENSEMBL
+mkdir PROTEIN
+mkdir TOPMED
+mkdir TRRUST
+```
 
