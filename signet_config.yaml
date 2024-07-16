@@ -1,0 +1,31 @@
+
+#Required project-specific directory and files
+gwas_filename: _GWAS_rows.txt
+snploc_filename: _rsid_GRCh38p13.txt
+feature_initscore_filename: feature_initscore_one.txt
+
+
+#Required common directory and files
+path: /Users/
+data_dir: ./data
+results_dir: ./results
+ppi_filename: Protein/human_annotated_PPIs_2021_05.txt
+protein_gene_filename: Protein/uniprot_gene.tab
+trrust_filename: Trrust/trrust_rawdata.human.tsv
+gene_filename: Ensembl/GeneType_GRCh38p13.txt
+
+
+#Optional project-specific files: include as *_genes.txt
+#For example, QRS_coloc_genes.txt, cosmic_genes.txt
+
+
+
+#-----------------------------------------------------------------------------------#
+#Extracting SNP locations from Ensembl:
+#first extract gwasrows given pubid - save as "phenotype_GWAScat.txt", in data dir
+#then, extract the rsid lists:
+#utils_data.GWAScat_rows(phenotype_list, GWAS_dir, project_datadir)
+#output saved as "phenotype + _GWAScat_rsid.txt" in data/GWAS_catalogue
+#next, upload this list/file to ensembl to download location file
+#Make sure to use GRCh38.p13 version and under Filters {Variant source: sbSNP, Variant name: choose file}
+#name downloaded location file as "phenotype_GWAScat_rsid_GRCh38p13.txt", MAKE sure tsv! save in data dir

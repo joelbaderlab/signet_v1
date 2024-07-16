@@ -106,9 +106,29 @@ cd ..
 
 Gene-regulatory interactions are from TRRUST. The TRRUST download does not have headers, so we add them.
 ```
+cd TRRUST
 wget 'https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv'
 echo -e 'TranscriptionFactor\tTarget\tSign\tPMIDs' > trrust.human.txt
 cat trrust_rawdata.human.tsv >> trrust.human.txt
+cd ..
 ```
 
+## Software dependencies
+
+It can be helpful to create a clean environment to run software. We tend to use conda. First, create a new environment and switch to it:
+```
+conda create --name signet_v1
+conda activate signet_v1
+```
+Then we install dependencies through `conda`. Note that the `yaml` dependency is `pyyaml`, which in turn installs `yaml`.
+```
+conda install python
+conda install pyyaml
+conda install numpy
+conda install scipy
+conda install pandas
+conda install matplotlib
+conda install python-graphviz
+```
+The resulting full list of conda packackes is provided as `signet_v1_conda.yaml`. We don't recommend creating the conda environment with this list, however. We usually have better luck just specifying the main dependencies.
 
