@@ -132,3 +132,22 @@ conda install python-graphviz
 ```
 The resulting full list of conda packackes is provided as `signet_v1_conda.yaml`. We don't recommend creating the conda environment with this list, however. We usually have better luck just specifying the main dependencies.
 
+## Running SigNet
+
+Everything should run fine from here. Assuming you are in the top-level directory with subdirectories `signet_v1` with the cloned repository, `DATA` with the data, and `RESULTS` for results:
+```
+conda activate signet_v1
+cd signet_v1
+python signet.py
+```
+
+Underneath the `RESULTS` directory will be a subdirectory named `GWAS_PHENO_250kb_initbestguess` where PHENO is a concatenated list of the phenotypes being analyzed together, `250kb` is the flank length, and `initbestguess` indicates that configurations start with the best guess gene as the active gene, rather than an initial random gene selection.
+
+The repository is set to run 5 independent restarts. Although the best guess initialization should be identical for each restart, changing the order of traversing the loci can change the results from restart to resart. The parameter `-s1` sets the number of restarts. For example,
+```
+python signet.py -s1 10
+```
+should perform 10 random restarts. The restart number is used as a seed using `random.seed(seed)` in `run_experiment` in `signet.py`. This can help in testing for consistency. Changing to `random.seed()` would use the system time for the random seed.
+
+Running the first time for a particular set of GWAS loci will take longer because the full list of interactions must be scanned. The software extracts the subnet corresponding to the GWAS loci for subsequent runs.
+
