@@ -1736,8 +1736,6 @@ def main():
 
     logger.info('*** FINISHED NETWORK CONSTRUCTION ***')
 
-    return None
-
     init_countsdf = pd.DataFrame()
     network_locus_list = []
     network_gene_list = []
