@@ -1274,8 +1274,8 @@ def main():
 
     logger.info('done with command-line arguments')
 
+    logger.info(f'reading config file {args.config}')
     config = Config(args.config)
-    logger.info(f'reading config file {config}')
 
     toplevel = config.toplevel
     data_dir = config.data_dir
@@ -1332,8 +1332,6 @@ def main():
     logger.info(f'snploc {snploc_file}')
     logger.info(f'gwas {gwas_file}')
 
-    return None
-    
     maxdistances_plot = False
 
     # external genes:
@@ -1368,6 +1366,8 @@ def main():
     gene_phenoset = defaultdict(set)
 
     rep_snp = 0
+
+    logger.info(f'done setting up ensembl genes')
 
     for ph in phenotype_list:
 
@@ -1545,6 +1545,9 @@ def main():
     write_locus_genes(filename, locus_gene_distance, locus_stats, GENE_BP_DICT, gene_phenoset, gene_type)
 
     logger.info(f'finished contructing loci')
+
+    return None
+    
     logger.info(f'gathering network edges')
 
     network_ppi = None

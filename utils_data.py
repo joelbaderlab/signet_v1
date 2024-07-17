@@ -19,6 +19,13 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+def isInt(mystr):
+    try:
+        int(mystr)
+    except ValueError:
+        return False
+    else:
+        return True
 
 def read_gene_file(gene_file, unannotated, pseudogene, antisense, project_datadir, external_genes):
     antisense_skipped = []
@@ -27,15 +34,34 @@ def read_gene_file(gene_file, unannotated, pseudogene, antisense, project_datadi
 
     ret = defaultdict(dict)
     synonym_ret = defaultdict()
+    notIntSet = set()
+    notIntCnt = 0
     with open(gene_file) as fp:
 
         reader = csv.DictReader(fp, delimiter='\t')
 
+        nrow = 0
         for row in reader:
+            nrow += 1
+
+            if (row['Gene stable ID'] == '[success]'):
+                # this is a success indicator from the wget command downloading the file
+                # should be the last line of the file if it's here
+                # we'll continue rather than check
+                logger.info(f'... skipping [success], row number {nrow}')
+                continue
+
             (gene, chromosome, gene_tss, gene_end, gene_start, gene_type, gene_description, gene_synonym) = (
                 row['Gene name'], row['Chromosome/scaffold name'], row['Transcription start site (TSS)'], row['Gene end (bp)'], row['Gene start (bp)'], row['Gene type'], row['Gene description'], row['Gene Synonym'])
 
-            if chromosome.startswith('CHR'):
+            # if chromosome.startswith('CHR'):
+            #   continue
+
+            # require the chromosome to be an integer
+            # skip X, Y, mitochondrial, patches, ...
+            if not isInt(chromosome):
+                notIntSet.add(chromosome)
+                notIntCnt += 1
                 continue
 
             synonym_ret[gene_synonym] = gene
@@ -93,6 +119,8 @@ def read_gene_file(gene_file, unannotated, pseudogene, antisense, project_datadi
 
     fp.close()
 
+    logger.info(f'skipped {notIntCnt} rows mapping to {len(notIntSet)} non-integer chromosomes')
+
     ensembl_genes = set(ret.keys())
     missing_genes = external_genes - ensembl_genes
     for gene in missing_genes:
@@ -102,7 +130,7 @@ def read_gene_file(gene_file, unannotated, pseudogene, antisense, project_datadi
 
             else:
                 logger.info(
-                    'gene(s) %s not found in ensemble_gene nor ensemble_gene_synonym', missing_genes)
+                    'gene(s) %s not found in ensemble_gene or ensemble_gene_synonym', missing_genes)
 
     n_unannotated_skipped = len(np.unique(unannotated_skipped))
     n_pseudo_skipped = len(np.unique(pseudo_skipped))
@@ -165,13 +193,12 @@ def read_gwas_file(data_dir, gwas_filename, phenotype_list, delimiter='\t'):
                     ret[rsid] = defaultdict(list)
                     ret[rsid]['pubmed'] = row['PUBMEDID']
                     ret[rsid]['type'] = row['CONTEXT']
-                    # for eMAGMA:
-                    sample_description = row['INITIAL SAMPLE SIZE'].replace(
-                        ",", "")
-                    ret[rsid]['Neff'] = re.search(
-                        '\d+|$', sample_description).group()
-                    ret[rsid]['P'] = "{:.50f}".format(
-                        float(row['P-VALUE']))
+                    # might have to revisit this parsing to ensure the numbers are correct
+                    # not used currently
+                    sample_description = row['INITIAL SAMPLE SIZE'].replace(",", "")
+                    # ret[rsid]['Neff'] = re.search('\d+|$', sample_description).group()
+                    ret[rsid]['Neff'] = sample_description
+                    ret[rsid]['P'] = "{:.50f}".format(float(row['P-VALUE']))
 
     return(ret)
 
