@@ -27,10 +27,8 @@ from scipy.stats import cauchy
 from scipy.stats import iqr
 #
 
-import pdb
-
-import warnings
-warnings.simplefilter("error")
+#import warnings
+#warnings.simplefilter("error")
 
 logging.basicConfig(format='%(levelname)s %(name)s.%(funcName)s: %(message)s')
 logger = logging.getLogger('signet')
@@ -41,26 +39,22 @@ FEATURE_LIST = ['omim', 'exome', 'coloc' ] #Must be in order of importance for s
 def get_args():
     parser = argparse.ArgumentParser(description='Select genes')
     parser.add_argument('-c', '--config', help='config file',required=False, type=str, default='./signet_config.yaml')
+    parser.add_argument('-n', '--project_dirname', help='project name', required=False, type=str, default='GWAS')
+    parser.add_argument('-p', '--phenotype_list', help='phenotype list', required=False, nargs='*', default=['QT', 'HR', 'QRS', 'PR', 'JT'])
+    parser.add_argument('-k', '--k_closestgenes', help='number of closest genes', required=False, type=int, default=1)
 
-    parser.add_argument('-n', '--project_dirname', help='project name', required=False, type=str, default='TopMed') # default='TopMed' default='Autism'
-
-    parser.add_argument('-p', '--phenotype_list', help='phenotype list', required=False, nargs='*', default=['QT', 'HR', 'QRS', 'PR', 'JT']) # default=['QT', 'HR', 'QRS', 'PR', 'JT'] default=['ASD']
-    parser.add_argument('-k', '--k_closestgenes', help='number of closest genes',
-                        required=False, type=int, default=1)
     parser.add_argument('-d', '--flankdistance', help='distance range from which to pick genes',required=False, type=int, default=250000)
     parser.add_argument('-s0', '--seed_start', help='seed0',required=False, type=int, default=0)
-    parser.add_argument('-s1', '--seed_end', help='seed1',required=False, type=int, default=1)
+    parser.add_argument('-s1', '--seed_end', help='seed1',required=False, type=int, default=5)
     parser.add_argument('--init_rand', help='randomly initialize selected network', action='store_true')  # default is False
     parser.add_argument('--nodegcor', help='degree corrected null', action='store_true')  # default is False
-    parser.add_argument(
-        '--plot', help='plot network', action='store_true')  # default is False
+    parser.add_argument('--plot', help='plot network', action='store_true')  # default is False
     parser.add_argument('--nooptim', help='degree corrected null', action='store_true')  # default is False
     parser.add_argument('--notTF', help='transcription factor', action='store_false')  # default is True
     parser.add_argument('--unannotated', help='include unannotated genes', action='store_true')  # default is False
     parser.add_argument('--pseudogene', help='include pseudogene', action='store_true')  # default is False
     parser.add_argument('--no_antisense', help='exclude antisense genes', action='store_true')  # default is False
     parser.add_argument('--notPPI', help='not_run_ppi',action='store_false')
-
 
     args = parser.parse_args()
     logger.info(f'args: {args}')
@@ -1278,44 +1272,57 @@ def main():
     network_plot = args.plot
     init_rand = args.init_rand
 
+    logger.info('done with command-line arguments')
 
     config = Config(args.config)
+    logger.info(f'reading config file {config}')
 
-    path = config.path
+    toplevel = config.toplevel
     data_dir = config.data_dir
     results_dir = config.results_dir
+
+    # logger.info(f'original configuration: toplevel {toplevel} data {data_dir} results {results_dir}')
+
+    data_dir = os.path.join(toplevel, data_dir)
+    results_dir = os.path.join(toplevel, results_dir)
+
+    # logger.info(f'datadir {data_dir} resultsdir {results_dir}')
+    # logger.info(f'datadir isdir? {os.path.isdir(data_dir)}')
+    # logger.info(f'resultsdir isdir? {os.path.isdir(results_dir)}')
+
     gene_filename  = config.gene_filename
     ppi_filename = config.ppi_filename
-    protein_gene_filename  = config.protein_gene_filename
     trrust_filename = config.trrust_filename
     gene_file = os.path.join(data_dir, gene_filename)
-
-    protein_gene_file = os.path.join(data_dir, protein_gene_filename)
     ppi_file = os.path.join(data_dir, ppi_filename)
     trrust_file = os.path.join(data_dir, trrust_filename)
 
     snploc_filename  = config.snploc_filename
     gwas_filename = config.gwas_filename
 
+    for myfile in [gene_file, ppi_file, trrust_file]:
+        logger.info(f'{myfile} exists? {os.path.isfile(myfile)}')
+
     phenostr = '+'.join(phenotype_list)
     flankstr = str(int( int(FLANKDIST) / 1000)) + 'kb'
+
+    # we previously used a protein-protein interaction database with Uniprot IDs rather than gene symbols
+    # the one we use now has gene symbols
+    # the protein_gene files were a dictionary mapping uniprot to hgnc, no longer needed
+    # protein_gene_filename  = config.protein_gene_filename
+    # protein_gene_file = os.path.join(data_dir, protein_gene_filename)
+    protein_gene_filename = None
+    protein_gene_file = None
+
     
-
-
-
-
     if init_rand == True:
-        initstr = 'initrand' + str(init_rand)
-        results_dir = os.path.join(results_dir, '_'.join([project_dirname, phenostr, flankstr, initstr, 'NewDist']))
+        results_dir = os.path.join(results_dir, '_'.join([project_dirname, phenostr, flankstr, 'initrand']))
     else:
-        results_dir = os.path.join(results_dir, '_'.join([project_dirname, phenostr, flankstr, 'NewDist']))
-
+        results_dir = os.path.join(results_dir, '_'.join([project_dirname, phenostr, flankstr, 'initbestguess']))
 
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    logger.info(f'results directory{results_dir}')
-
-    pdb.set_trace()
+    logger.info(f'results directory {results_dir}')
 
     project_datadir = os.path.join(data_dir, project_dirname)
     snploc_file = os.path.join(project_datadir, snploc_filename)
@@ -1324,6 +1331,8 @@ def main():
     logger.info(f'datadir {project_datadir}')
     logger.info(f'snploc {snploc_file}')
     logger.info(f'gwas {gwas_file}')
+
+    return None
     
     maxdistances_plot = False
 
@@ -1388,8 +1397,6 @@ def main():
     # for network genes, get distance to closest snp and the closest snp
     gene_distance = get_gene_distance(snp_gene_distance)
     gene_signeddistance = get_gene_signeddistance(snp_gene_signeddist)
-
-    # pdb.set_trace()
 
 
     for gene in gene_distance:
@@ -1731,7 +1738,7 @@ def main():
 
     for seed in range(seed_start, seed_end):
 
-        logger.info(f'*** starting seed {seed} ***')
+        logger.info(f'*** starting independent restart {seed} ***')
         #base_filename = 'seed' + str(seed) + '_ppi' + str(ppi_run) + '_TF' + str(TF_run) + '_degcor' + str(degree_correction) + '_optim' + str(optim_run) +'_unannotated' + str(unannotated) + '_pseudogene' + str(pseudogene) + '_no-antisense' + str(antisense)
         base_filename = f'seed{seed:02d}'
 
@@ -1745,7 +1752,7 @@ def main():
                        unannotated, pseudogene, antisense,
                        degfac_ppi, network_gri, network_gri_rev, degfac_gri, degfac_gri_rev, init_rand)
 
-        logger.info(f'... finished seed {seed}')
+        logger.info(f'... finished independent restart {seed}')
 
         
         counts_df = pd.read_csv(allruns_countlog, sep='\t')

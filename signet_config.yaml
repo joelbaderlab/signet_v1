@@ -1,18 +1,30 @@
+# configuration for signet
 
-#Required project-specific directory and files
+# suffixes for files in the GWAS directory
+# each phenotype has a prefix, for example HR for heart rate
+# then files in the DATA/GWAS directory would be
+# HR_GWAS_rows.txt HR_rsid_GRCh38p13.txt HR_
 gwas_filename: _GWAS_rows.txt
 snploc_filename: _rsid_GRCh38p13.txt
 feature_initscore_filename: feature_initscore_one.txt
 
 
-#Required common directory and files
-path: /Users/
-data_dir: ./data
-results_dir: ./results
-ppi_filename: Protein/human_annotated_PPIs_2021_05.txt
-protein_gene_filename: Protein/uniprot_gene.tab
-trrust_filename: Trrust/trrust_rawdata.human.tsv
-gene_filename: Ensembl/GeneType_GRCh38p13.txt
+# Required common directory and files
+# The recommended directory structure is that the toplevel directory has subdirectories for
+#   signet source code repo
+#   DATA (including GWAS data)
+#   RESULTS
+# data_dir and results_dir are relative to toplevel
+toplevel: ../
+data_dir: DATA
+results_dir: RESULTS
+# these are subdirectories of DATA
+ppi_filename: PROTEIN/human_annotated_PPIs.txt
+trrust_filename: TRRUST/trrust.human.txt
+gene_filename: ENSEMBL/ensembl_gene.txt
+
+# shouldn't need this anymore
+protein_gene_filename: PROTEIN/uniprot_gene.tab
 
 
 #Optional project-specific files: include as *_genes.txt
