@@ -1158,10 +1158,17 @@ def get_uniprot_subset(uniprot_to_hgnc, networkgenes):
     return uniprot_subset
 
 def get_network_ppi(uniprot_to_hgnc, uniprot_subset, hgnc_subset, ppi_file):
+
     logger.info(f'reading subset from {ppi_file}')
-    uniprot_directed_dict = utils_ppi.read_ppi_subset(ppi_file, uniprot_subset)
-    logger.info(f'converting uniprot to hgnc')
-    protein_directed_dict = utils_ppi.convert_uniprot_to_hgnc(uniprot_directed_dict, uniprot_to_hgnc)
+
+    # this commented code reads uniprot and converts to hgnc
+    # we've switched to ppi data that uses hgnc
+    #uniprot_directed_dict = utils_ppi.read_ppi_subset(ppi_file, uniprot_subset)
+    #logger.info(f'converting uniprot to hgnc')
+    #protein_directed_dict = utils_ppi.convert_uniprot_to_hgnc(uniprot_directed_dict, uniprot_to_hgnc)
+
+    protein_directed_dict = utils_ppi.read_ppi_subset_hgnc(ppi_file, hgnc_subset)
+    
     logger.info(f'converting network to undirected')
     protein_proteins = utils_ppi.make_undirected(protein_directed_dict)
 
@@ -1546,8 +1553,6 @@ def main():
 
     logger.info(f'finished contructing loci')
 
-    return None
-    
     logger.info(f'gathering network edges')
 
     network_ppi = None
@@ -1571,9 +1576,13 @@ def main():
         logger.info(f'regenerating network_ppi, takes a minute')
 
         logger.info(f'reading {protein_gene_file}')
-        uniprot_to_hgnc = utils_ppi.protein_gene(protein_gene_file)
-        uniprot_subset = get_uniprot_subset(uniprot_to_hgnc, networkgenes)
-        logger.info(f'{len(networkgenes)} map to {len(uniprot_subset)} uniprot')
+        # uniprot_to_hgnc and uniprot_subset are for network data that uses uniprot id instead of gene symbol
+        # we've switched to gene symbol
+        # uniprot_to_hgnc = utils_ppi.protein_gene(protein_gene_file)
+        # uniprot_subset = get_uniprot_subset(uniprot_to_hgnc, networkgenes)
+        # logger.info(f'{len(networkgenes)} map to {len(uniprot_subset)} uniprot')
+        uniprot_to_hgnc = None
+        uniprot_subset = None
         network_ppi = get_network_ppi(uniprot_to_hgnc, uniprot_subset, networkgenes, ppi_file)
         logger.info(f'writing network_ppi to {networkfile} for next time')
         write_networkfile(networkfile, network_ppi)
@@ -1595,6 +1604,8 @@ def main():
     logger.info('%d loci', nlocus)
     logger.info('%f degree (null)', fnull * (nlocus - 1.0))
     logger.info('%f edges (null)', 0.5 * fnull * nlocus * (nlocus - 1.0))
+
+    logger.info(f'done setting up network null')
     
     # degree_correction:
     
@@ -1724,6 +1735,8 @@ def main():
                 f.write('\t'.join([gene, str(gene_PPIdegree[gene]), str(gene_TFoutdegree[gene]), str(gene_TFindegree[gene])]) + '\n')
 
     logger.info('*** FINISHED NETWORK CONSTRUCTION ***')
+
+    return None
 
     init_countsdf = pd.DataFrame()
     network_locus_list = []

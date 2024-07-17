@@ -62,7 +62,7 @@ def read_ppi(filename):
         '%s -> %d directed PPI interactions and %d removed_pred_edges', filename, n, m)
     return(ret)
 
-def read_ppi_subset(filename, uniprot_subset):
+def read_ppi_subset_uniprot(filename, uniprot_subset):
     ret = collections.defaultdict(set)
     m = 0
     with open(filename, newline='') as fp:
@@ -80,6 +80,26 @@ def read_ppi_subset(filename, uniprot_subset):
     logger.info(
         '%s -> %d directed PPI interactions and %d skipped', filename, n, m)
     return(ret)
+
+def read_ppi_subset_hgnc(filename, hgnc_subset):
+    ret = collections.defaultdict(set)
+    m = 0
+    with open(filename, newline='') as fp:
+        reader = csv.DictReader(fp, delimiter='\t')
+        for row in reader:
+            (a, b, evidence) = (row['symbol1'], row['symbol2'], row['evidence_type'])
+            if (a in hgnc_subset) and (b in hgnc_subset):
+                if ('exp' in evidence) or ('ortho' in evidence):
+                    ret[a].update([b])
+            else:
+                m += 1
+
+    fp.close()
+    n = count_edges(ret)
+    logger.info(
+        '%s -> %d directed PPI interactions and %d skipped', filename, n, m)
+    return(ret)
+
 
 # network is a dict of sets, vertex to its neighbors
 # u_to_h is a dict of sets, uniprot to hgncs
