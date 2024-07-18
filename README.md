@@ -5,9 +5,77 @@ Authors: Zeinab Mousavi, Joel Bader, Johns Hopkins University
 
 Contact: joel.bader@jhu.edu
 
-## Installation
+## Installation overview
 
-We like to have a top-level directory with sub-directories for the github repo, for external data (GWAS data, colocalization data, interaction data, genome reference), and for results. So, somewhere in your path, create a top-level directory called `signet` and then
+We like to have a top-level directory with sub-directories for the github repo, for external data (GWAS data, colocalization data, interaction data, genome reference), and for results. When installation is complete, the directory structure should be similar to this, created using `tree`:
+
+```
+signet
+├── DATA
+│   ├── ENSEMBL
+│   │   └── ensembl_gene.txt
+│   ├── GWAS
+│   │   ├── HR_GWAS_rows.txt
+│   │   ├── HR_coloc_genes.txt
+│   │   ├── HR_list.txt
+│   │   ├── HR_rsid_GRCh38p13.txt
+│   │   ├── JT_GWAS_rows.txt
+│   │   ├── JT_rsid_GRCh38p13.txt
+│   │   ├── PR_GWAS_rows.txt
+│   │   ├── PR_coloc_genes.txt
+│   │   ├── PR_rsid_GRCh38p13.txt
+│   │   ├── QRS_GWAS_rows.txt
+│   │   ├── QRS_coloc_genes.txt
+│   │   ├── QRS_rsid_GRCh38p13.txt
+│   │   ├── QT_GWAS_rows.txt
+│   │   ├── QT_coloc_genes.txt
+│   │   ├── QT_rsid_GRCh38p13.txt
+│   │   ├── exome_genes.txt
+│   │   ├── gwas_catalog.txt
+│   │   └── omim_genes.txt
+│   ├── PROTEIN
+│   │   └── human_annotated_PPIs.txt
+│   └── TRRUST
+│       ├── trrust.human.txt
+│       ├── trrust.txt
+│       ├── trrust_rawdata.human.tsv
+│       ├── trrust_rawdata.human.tsv.1
+│       └── trust.txt
+├── RESULTS
+│   └── GWAS_QT+HR+QRS+PR+JT_250kb_initbestguess
+│       └── summary_genestats_manuscript.txt
+└── signet_v1
+    ├── LICENSE
+    ├── README.md
+    ├── SAMPLEDATA
+    │   ├── HR_coloc_genes.txt
+    │   ├── HR_rsid_GRCh38p13.txt
+    │   ├── JT_rsid_GRCh38p13.txt
+    │   ├── PR_coloc_genes.txt
+    │   ├── PR_rsid_GRCh38p13.txt
+    │   ├── QRS_coloc_genes.txt
+    │   ├── QRS_rsid_GRCh38p13.txt
+    │   ├── QT_coloc_genes.txt
+    │   ├── QT_rsid_GRCh38p13.txt
+    │   ├── exome_genes.txt
+    │   └── omim_genes.txt
+    ├── counts_postprocessing_manuscript.py
+    ├── dist_hist.py
+    ├── plot_networks.py
+    ├── pval_hist.py
+    ├── run_postprocessing.sh
+    ├── signet.py
+    ├── signet_config.yaml
+    ├── signet_v1_conda.yaml
+    ├── tables_clipboard.py
+    ├── utils_data.py
+    ├── utils_plot.py
+    └── utils_ppi.py
+```
+
+## Installation process
+
+Somewhere in your path, create a top-level directory called `signet` and then
 ```
 cd signet
 git clone https://github.com/joelbaderlab/signet_v1.git
