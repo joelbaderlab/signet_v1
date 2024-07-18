@@ -123,9 +123,7 @@ def neighbor_genes(innerlevel_genes, selected_geneset, network_ppi, TFsource_tar
 
 
 
-def plot_InteractionNetwork_oup(anchor_gene, results_dir, summary_filename,  network_ppi, gene_special, TFsource_target):
-    if SKIPPLOT:
-        return None
+def plot_InteractionNetwork_v1(anchor_gene, results_dir, summary_filename,  network_ppi, gene_special, TFsource_target):
     logger.info('plotting network')
 
     TFtarget_source = utils_ppi.reverse_network(TFsource_target)
@@ -149,14 +147,12 @@ def plot_InteractionNetwork_oup(anchor_gene, results_dir, summary_filename,  net
         if gene in mindist_geneset:
             anchor_interesting_geneset.add(gene)
 
-
-
     firstlevel_neighbors = neighbor_genes(anchor_interesting_geneset, selected_geneset, network_ppi, TFsource_target, TFtarget_source)
     secondlevel_neighbors = neighbor_genes(firstlevel_neighbors, selected_geneset, network_ppi, TFsource_target, TFtarget_source)
     thirdlevel_neighbors = neighbor_genes(secondlevel_neighbors, selected_geneset, network_ppi, TFsource_target, TFtarget_source)
 
-
-    for level in [1, 2, 3]:
+    # for level in [1, 2, 3]:
+    for level in [1]:
         graphresults_dir = results_dir + '/network_plots'
         graph_name = os.path.join(graphresults_dir, anchor_gene + '_level' +str(level))
 
