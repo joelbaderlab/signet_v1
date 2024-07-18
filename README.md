@@ -151,3 +151,12 @@ should perform 10 random restarts. The restart number is used as a seed using `r
 
 Running the first time for a particular set of GWAS loci will take longer because the full list of interactions must be scanned. The software extracts the subnet corresponding to the GWAS loci for subsequent runs.
 
+## Summarizing results
+
+Separate programs read the output from the `RESULTS` directory and generate summary tables and plots.
+
+The first program to run is `counts_postprocessing_manuscript.py`, which generates a summary table:
+```
+python ./counts_postprocessing_manuscript.py --results_dir ../RESULTS/GWAS_QT+HR+QRS+PR+JT_250kb_initbestguess --seed_start 0 --seed_end 10
+```
+
